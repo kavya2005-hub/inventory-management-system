@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User - Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --lavender: #9370DB;
+            --lavender-light: #E6E6FA;
+            --lavender-dark: #7B68EE;
+            --white: #FFFFFF;
+            --dark: #2D3748;
+            --gray: #718096;
+            --success: #38a169;
+            --error: #e53e3e;
+            --warning: #ff9800;
+            --light-gray: #f7fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--lavender-light) 0%, var(--white) 100%);
+            color: #333;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .topbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(123, 104, 238, 0.1);
+            color: var(--lavender-dark);
+            text-decoration: none;
+            border-radius: 50%;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(123, 104, 238, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .back-btn i {
+            font-size: 1.2rem;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--lavender) 0%, var(--lavender-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(147, 112, 219, 0.4);
+        }
+
+        .user-info span {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--lavender-dark);
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(147, 112, 219, 0.15);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        label .required {
+            color: var(--error);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--dark);
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--lavender);
+            box-shadow: 0 0 0 3px rgba(147, 112, 219, 0.1);
+        }
+
+        input[readonly] {
+            background-color: #f7fafc;
+            cursor: not-allowed;
+            border-color: #cbd5e0;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        /* Info Box */
+        .info-box {
+            background-color: rgba(123, 104, 238, 0.1);
+            border-left: 4px solid var(--lavender-dark);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .info-box p {
+            color: var(--lavender-dark);
+            font-size: 0.95rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Button Group */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--lavender) 0%, var(--lavender-dark) 100%);
+            color: var(--white);
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(147, 112, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark);
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--lavender-light);
+            border-top: 4px solid var(--lavender);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 15px;
+            }
+
+            .content-area {
+                padding: 15px;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button id="backButton" class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+        <div class="topbar-right">
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+                <span><strong>Admin User</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+            <i class="fas fa-user-edit" style="color: var(--lavender-dark); font-size: 2rem;"></i>
+            <h1 class="page-title">Edit User</h1>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Loading user data...</p>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container" id="formContainer">
+            <div class="info-box">
+                <p>
+                    <i class="fas fa-info-circle"></i>
+                    Fields marked with <span style="color: var(--error); font-weight: bold;">*</span> are required
+                </p>
+            </div>
+
+            <form id="editUserForm">
+                <!-- ID (Read-only) -->
+                <div class="form-group">
+                    <label for="userId">ID</label>
+                    <input type="text" id="userId" name="userId" readonly>
+                </div>
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="name">Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <!-- Designation and Department -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="designation">Designation <span class="required">*</span></label>
+                        <input type="text" id="designation" name="designation" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department <span class="required">*</span></label>
+                        <input type="text" id="department" name="department" required>
+                    </div>
+                </div>
+
+                <!-- Rights and Phone Number -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rights">Rights <span class="required">*</span></label>
+                        <select id="rights" name="rights" required>
+                            <option value="">Select Rights</option>
+                            <option value="admin">admin</option>
+                            <option value="staff">staff</option>
+                           
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" required>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="form-group">
+                    <label for="status">Status <span class="required">*</span></label>
+                    <select id="status" name="status" required>
+                        <option value="">Select Status</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-redo"></i>
+                        Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+ <script>
+function goBack() {
+    window.history.back();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const staffId = urlParams.get("id");
+
+    if (!staffId) {
+        alert("No Staff ID found in URL!");
+        return;
+    }
+
+    console.log("📌 Editing Staff ID:", staffId);
+
+    // Load staff details
+    fetch(`http://localhost:8080/api/staff/${staffId}`)
+        .then(response => {
+            if (!response.ok) throw new Error("Failed to fetch staff");
+            return response.json();
+        })
+        .then(staff => {
+            document.getElementById("userId").value = staff.id;
+            document.getElementById("name").value = staff.name;
+            document.getElementById("email").value = staff.email;
+            document.getElementById("designation").value = staff.designation;
+            document.getElementById("department").value = staff.department;
+            document.getElementById("rights").value = staff.rights;
+            document.getElementById("phoneNumber").value = staff.phoneNumber;
+            document.getElementById("status").value = staff.status;
+        })
+        .catch(err => {
+            console.error("❌ LOAD ERROR:", err);
+            alert("Failed to load staff!");
+        });
+
+    // Listen for form submit (Save button)
+    document.getElementById("editUserForm").addEventListener("submit", function(e) {
+        e.preventDefault(); // Stop page reload
+
+        const updatedStaff = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            designation: document.getElementById("designation").value,
+            department: document.getElementById("department").value,
+            rights: document.getElementById("rights").value,
+            phoneNumber: document.getElementById("phoneNumber").value,
+            status: document.getElementById("status").value
+        };
+
+        fetch(`http://localhost:8080/api/staff/${staffId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedStaff)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Update failed");
+            alert("✔ Staff updated successfully!");
+            window.location.href = "users.html";
+        })
+        .catch(err => {
+            console.error("❌ UPDATE ERROR:", err);
+            alert("Failed to update staff!");
+        });
+    });
+});
+
+// Reset function
+function resetForm() {
+    document.getElementById("editUserForm").reset();
+}
+</script>
+
+
+
+</body>
+</html>

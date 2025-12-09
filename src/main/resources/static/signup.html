@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Inventory Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --lavender: #9370DB;
+            --lavender-light: #E6E6FA;
+            --lavender-dark: #7B68EE;
+            --white: #FFFFFF;
+            --dark: #2D3748;
+            --gray: #718096;
+            --error: #e53e3e;
+            --success: #38a169;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--lavender-light) 0%, var(--white) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--lavender-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 50px;
+        }
+
+        .signup-card {
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(147, 112, 219, 0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signup-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--lavender), var(--lavender-dark));
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .card-subtitle {
+            color: var(--gray);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: var(--lavender);
+            box-shadow: 0 0 0 3px rgba(147, 112, 219, 0.1);
+            outline: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--error);
+        }
+
+        .form-control.is-valid {
+            border-color: var(--success);
+        }
+
+        .invalid-feedback {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-control.is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--lavender-dark);
+        }
+
+        .btn-signup {
+            background: linear-gradient(135deg, var(--lavender), var(--lavender-dark));
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(147, 112, 219, 0.3);
+        }
+
+        .btn-signup:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray);
+        }
+
+        .login-link a {
+            color: var(--lavender-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--lavender);
+            text-decoration: underline;
+        }
+
+        /* Decorative Elements */
+        .decoration {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .decoration-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--lavender);
+            top: 10%;
+            left: -150px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .decoration-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--lavender-dark);
+            bottom: 10%;
+            right: -100px;
+            animation: float 6s ease-in-out infinite reverse;
+        }
+
+        .decoration-3 {
+            width: 150px;
+            height: 150px;
+            background: var(--lavender-light);
+            top: 50%;
+            right: 10%;
+            animation: float 7s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: rgba(56, 161, 105, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .signup-card {
+                padding: 30px 20px;
+            }
+            
+            .card-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="navbar-brand">
+                <i class="fas fa-warehouse"></i>
+                INVENTORY PRO
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Decorative Elements -->
+        <div class="decoration decoration-1"></div>
+        <div class="decoration decoration-2"></div>
+        <div class="decoration decoration-3"></div>
+        
+        <div class="signup-card">
+            <h2 class="card-title">Create Account</h2>
+            <p class="card-subtitle">Join our inventory management system today</p>
+            
+            <div class="success-message" id="successMessage">
+                Account created successfully! Redirecting to login page...
+            </div>
+            
+            <form id="signupForm">
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="fullName" placeholder="Enter your full name" required>
+                    <div class="invalid-feedback">Please enter a valid name (alphabets and spaces only)</div>
+                </div>
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                    <div class="invalid-feedback">Please enter a valid email address</div>
+                </div>
+                
+                <!-- Designation -->
+                <div class="form-group">
+                    <label for="designation" class="form-label">Designation</label>
+                    <input type="text" class="form-control" id="designation" placeholder="Enter your designation" required>
+                    <div class="invalid-feedback">Please enter your designation</div>
+                </div>
+                
+                <!-- Department -->
+                <div class="form-group">
+                    <label for="department" class="form-label">Department</label>
+                    <input type="text" class="form-control" id="department" placeholder="Enter your department" required>
+                    <div class="invalid-feedback">Please enter your department</div>
+                </div>
+                
+                <!-- Rights -->
+                <div class="form-group">
+                    <label for="rights" class="form-label">Rights</label>
+                    <select class="form-control" id="rights" required>
+                        <option value="" disabled selected>Select your rights</option>
+                        <option value="admin">admin</option>
+                        <option value="staff">staff</option>
+                    </select>
+                    <div class="invalid-feedback">Please select your rights</div>
+                </div>
+                
+                <!-- Phone Number -->
+                <div class="form-group">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="phone" placeholder="Enter your phone number" required>
+                    <div class="invalid-feedback">Phone number must be exactly 10 digits and cannot start with 0</div>
+                </div>
+                
+                <!-- Status -->
+                <div class="form-group">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-control" id="status">
+                        <option value="ACTIVE" selected>ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </div>
+                
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+                    <i class="fas fa-eye password-toggle" id="passwordToggle"></i>
+                    <div class="invalid-feedback">Password must be at least 6 characters long</div>
+                </div>
+                
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required>
+                    <i class="fas fa-eye password-toggle" id="confirmPasswordToggle"></i>
+                    <div class="invalid-feedback">Passwords do not match</div>
+                </div>
+                
+                <button type="submit" class="btn-signup">Sign Up</button>
+            </form>
+            
+            <div class="login-link">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+document.getElementById("passwordToggle").addEventListener("click", function() {
+    const passwordInput = document.getElementById("password");
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        this.classList.replace("fa-eye", "fa-eye-slash");
+    } else {
+        passwordInput.type = "password";
+        this.classList.replace("fa-eye-slash", "fa-eye");
+    }
+});
+
+document.getElementById("confirmPasswordToggle").addEventListener("click", function() {
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    if (confirmPasswordInput.type === "password") {
+        confirmPasswordInput.type = "text";
+        this.classList.replace("fa-eye", "fa-eye-slash");
+    } else {
+        confirmPasswordInput.type = "password";
+        this.classList.replace("fa-eye-slash", "fa-eye");
+    }
+});
+
+document.getElementById("signupForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    // --- FIXED IDs ---
+    const fullName = document.getElementById("fullName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const designation = document.getElementById("designation").value.trim();
+    const department = document.getElementById("department").value.trim();
+    const rights = document.getElementById("rights").value;
+    const phone = document.getElementById("phone").value.trim();
+    const status = document.getElementById("status").value;
+    const password = document.getElementById("password").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+    if (password !== confirmPassword) {
+        alert("Password mismatch!");
+        return;
+    }
+
+    const staffData = {
+    name: fullName,
+    email: email,
+    password: password,
+    designation: designation,
+    department: department,
+    rights: rights,
+    phoneNumber: phone,
+    status: status
+};
+
+
+    console.log("Sending to backend:", staffData);
+
+    fetch("http://localhost:8080/api/staff", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(staffData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Server Error");
+        }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById("successMessage").style.display = "block";
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 2000);
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Signup failed! Please check details and try again.");
+    });
+});
+</script>
+
+
+</body>
+</html>

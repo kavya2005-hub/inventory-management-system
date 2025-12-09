@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Overview - Inventory Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --lavender: #9370DB;
+            --lavender-light: #E6E6FA;
+            --lavender-dark: #7B68EE;
+            --white: #FFFFFF;
+            --dark: #2D3748;
+            --gray: #718096;
+            --admin-color: #6366f1;
+            --staff-color: #10b981;
+            --new-user-color: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--lavender-light) 0%, var(--white) 100%);
+            color: #333;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--lavender-dark);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(147, 112, 219, 0.1);
+        }
+
+        .back-button:hover {
+            background: var(--lavender);
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        /* Users Overview Section */
+        .users-overview {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--lavender-dark);
+            font-weight: 600;
+        }
+
+        .section-icon {
+            font-size: 2rem;
+            color: var(--lavender);
+        }
+
+        .users-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(147, 112, 219, 0.12);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(147, 112, 219, 0.1);
+        }
+
+        .user-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--lavender), var(--lavender-dark));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .user-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .user-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(147, 112, 219, 0.2);
+        }
+
+        .user-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .user-card-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .user-card.total-users .user-card-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .user-card.admin-users .user-card-icon {
+            background: linear-gradient(135deg, var(--admin-color), #8b5cf6);
+            color: white;
+        }
+
+        .user-card.staff-users .user-card-icon {
+            background: linear-gradient(135deg, var(--staff-color), #34d399);
+            color: white;
+        }
+
+        .user-card.new-users .user-card-icon {
+            background: linear-gradient(135deg, var(--new-user-color), #fbbf24);
+            color: white;
+        }
+
+        .user-card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .user-card-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-card-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .trend-up {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--staff-color);
+        }
+
+        .trend-down {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* Recent Users List */
+        .recent-users-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(147, 112, 219, 0.12);
+        }
+
+        .recent-users-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .recent-users-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .view-all-btn {
+            background: none;
+            border: none;
+            color: var(--lavender);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-all-btn:hover {
+            color: var(--lavender-dark);
+            transform: translateX(3px);
+        }
+
+        .recent-users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .recent-user-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .recent-user-item:hover {
+            background: rgba(147, 112, 219, 0.05);
+            transform: translateX(5px);
+        }
+
+        .recent-user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--lavender-light), var(--lavender));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .recent-user-info {
+            flex: 1;
+        }
+
+        .recent-user-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 3px;
+        }
+
+        .recent-user-email {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .recent-user-role {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-admin {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--admin-color);
+        }
+
+        .role-staff {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--staff-color);
+        }
+
+        .recent-user-date {
+            font-size: 0.8rem;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+
+        .loading {
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .users-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .recent-user-item {
+                flex-wrap: wrap;
+            }
+
+            .recent-user-date {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back to Dashboard Button -->
+        <button class="back-button" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+
+        <!-- Users Overview Section -->
+        <div class="users-overview">
+            <div class="section-header">
+                <i class="fas fa-users section-icon"></i>
+                <h1 class="section-title">Staff Overview</h1>
+            </div>
+
+           
+
+       
+
+            <table style="width:100%; border-collapse: collapse; margin-top: 15px;">
+                <thead>
+                    <tr style="background:#9370DB; color:white;">
+                        <th style="padding:10px;">ID</th>
+                        <th style="padding:10px;">Name</th>
+                        <th style="padding:10px;">Email</th>
+                        <th style="padding:10px;">Designation</th>
+                        <th style="padding:10px;">Department</th>
+                        <th style="padding:10px;">Rights</th>
+                        <th style="padding:10px;">Phone</th>
+                        <th style="padding:10px;">Status</th>
+                        <th style="padding:10px;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="staffTableBody">
+                    <!-- LOADED STAFF DATA -->
+                </tbody>
+            </table>
+        </div>
+
+        </div>
+    </div>
+
+   
+           <!-- ⭐ JS SCRIPT AT BOTTOM (important) -->
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadStaffData();
+        });
+
+        function loadStaffData() {
+            const tableBody = document.getElementById("staffTableBody");
+
+            if (!tableBody) {
+                console.error("❌ staffTableBody NOT FOUND!");
+                return;
+            }
+
+            fetch("http://localhost:8080/api/staff")
+                .then(res => res.json())
+                .then(data => {
+                    console.log("REAL STAFF DATA:", data);
+
+                    tableBody.innerHTML = "";
+
+                    if (!data || data.length === 0) {
+                        tableBody.innerHTML = `
+                            <tr><td colspan="10" style="text-align:center;">No staff found</td></tr>
+                        `;
+                        return;
+                    }
+
+                    data.forEach(staff => {
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td>${staff.id}</td>
+                                <td>${staff.name}</td>
+                                <td>${staff.email}</td>
+                                <td>${staff.designation}</td>
+                                <td>${staff.department}</td>
+                                <td>${staff.rights}</td>
+                                <td>${staff.phoneNumber}</td>
+                                <td>${staff.status}</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="editStaff(${staff.id})">✏️</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteStaff(${staff.id})">🗑️</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(err => {
+                    console.error("STAFF LOAD ERROR:", err);
+                    alert("Failed to load staff!");
+                });
+        }
+
+        function editStaff(id) {
+            window.location.href = `editstaff.html?id=${id}`;
+        }
+
+        function deleteStaff(id) {
+            if (!confirm("Are you sure?")) return;
+
+            fetch(`http://localhost:8080/api/staff/${id}`, { method: "DELETE" })
+                .then(res => {
+                    if (res.ok) {
+                        alert("Staff deleted!");
+                        loadStaffData();
+                    }
+                });
+        }
+
+        // Go back to previous page
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - Inventory Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --lavender: #9370DB;
+            --lavender-light: #E6E6FA;
+            --lavender-dark: #7B68EE;
+            --white: #FFFFFF;
+            --dark: #2D3748;
+            --gray: #718096;
+            --success: #38a169;
+            --error: #e53e3e;
+            --warning: #ff9800;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--lavender-light) 0%, var(--white) 100%);
+            color: #333;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Top Bar */
+        .topbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(123, 104, 238, 0.1);
+            color: var(--lavender-dark);
+            text-decoration: none;
+            border-radius: 50%;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: rgba(123, 104, 238, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .back-btn i {
+            font-size: 1.2rem;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--lavender) 0%, var(--lavender-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(147, 112, 219, 0.4);
+        }
+
+        .user-info span {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .breadcrumb a {
+            color: var(--lavender-dark);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--lavender);
+        }
+
+        .breadcrumb span {
+            color: var(--gray);
+        }
+
+        .breadcrumb .current {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(147, 112, 219, 0.15);
+            max-width: 800px;
+            margin: 0 auto;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            color: var(--lavender-dark);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .form-header p {
+            color: var(--gray);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Form Group */
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--lavender);
+            box-shadow: 0 0 0 3px rgba(147, 112, 219, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background: #f7fafc;
+            color: var(--gray);
+            cursor: not-allowed;
+        }
+
+        .form-group input:disabled:focus,
+        .form-group select:disabled:focus {
+            border-color: #e2e8f0;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Validation Messages */
+        .validation-message {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .validation-message.error {
+            color: var(--error);
+            display: block;
+        }
+
+        .validation-message.success {
+            color: var(--success);
+            display: block;
+        }
+
+        .form-group.error input,
+        .form-group.error select {
+            border-color: var(--error);
+        }
+
+        .form-group.success input,
+        .form-group.success select {
+            border-color: var(--success);
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--lavender) 0%, var(--lavender-dark) 100%);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(147, 112, 219, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(147, 112, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--lavender-dark);
+            border: 2px solid var(--lavender-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--lavender-light);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(147, 112, 219, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Success Message */
+        .success-alert {
+            background: rgba(56, 161, 105, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 25px;
+                margin: 0 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .topbar {
+                padding: 15px;
+            }
+
+            .content-area {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button id="backButton" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+        <div class="topbar-right">
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+                <span><strong>Admin User</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <span>→</span>
+            <span class="current">Add Product</span>
+        </div>
+
+        <!-- Success Alert -->
+        <div class="success-alert" id="successAlert">
+            ✅ Product added successfully!
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Add New Product</h1>
+                <p>Fill in product details below</p>
+            </div>
+
+            <form id="productForm">
+                <div class="form-grid">
+                    <!-- Product Code -->
+                    <div class="form-group" id="productCodeGroup">
+                        <label for="productCode">Product Code</label>
+                        <input type="text" id="productCode" name="productCode" placeholder="Enter unique product code" required>
+                        <div class="validation-message" id="productCodeError"></div>
+                    </div>
+
+                    <!-- Product Name -->
+                    <div class="form-group" id="productNameGroup">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" name="productName" placeholder="Enter product name" required>
+                        <div class="validation-message" id="productNameError"></div>
+                    </div>
+
+                    <!-- Model -->
+                    <div class="form-group" id="modelGroup">
+                        <label for="model">Model</label>
+                        <input type="text" id="model" name="model" placeholder="Enter product model">
+                        <div class="validation-message" id="modelError"></div>
+                    </div>
+
+                    <!-- Price Per Quantity -->
+                    <div class="form-group" id="pricePerQuantityGroup">
+                        <label for="pricePerQuantity">Price Per Quantity</label>
+                        <input type="number" id="pricePerQuantity" name="pricePerQuantity" placeholder="0.00" step="0.01" min="0" required>
+                        <div class="validation-message" id="pricePerQuantityError"></div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="form-group" id="quantityGroup">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" placeholder="0" min="0" required>
+                        <div class="validation-message" id="quantityError"></div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status" required>
+                            <option value="">Select Status</option>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                        <div class="validation-message" id="statusError"></div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <script>
+
+// Replace the back button code with this:
+
+// --------------------------------------
+// BACK BUTTON - FIXED
+// --------------------------------------
+document.getElementById('backButton').addEventListener('click', function() {
+    window.history.back(); 
+});
+
+
+// --------------------------------------
+// VALIDATION FUNCTIONS
+// --------------------------------------
+function validateForm() {
+    let isValid = true;
+
+    resetValidation();
+
+    const productCode = getValue("productCode");
+    if (productCode.length < 3) {
+        showFieldError("productCode", "Product code must be at least 3 characters");
+        isValid = false;
+    } else {
+        showFieldSuccess("productCode", "Valid product code");
+    }
+
+    const productName = getValue("productName");
+    if (productName.length < 2) {
+        showFieldError("productName", "Product name must be at least 2 characters");
+        isValid = false;
+    } else {
+        showFieldSuccess("productName", "Valid product name");
+    }
+
+    const price = parseFloat(getValue("pricePerQuantity"));
+    if (isNaN(price) || price <= 0) {
+        showFieldError("pricePerQuantity", "Price must be greater than 0");
+        isValid = false;
+    } else {
+        showFieldSuccess("pricePerQuantity", "Valid price");
+    }
+
+    const quantity = parseInt(getValue("quantity"));
+    if (isNaN(quantity) || quantity < 0) {
+        showFieldError("quantity", "Quantity must be 0 or greater");
+        isValid = false;
+    } else {
+        showFieldSuccess("quantity", "Valid quantity");
+    }
+
+    const status = getValue("status");
+    if (!status) {
+        showFieldError("status", "Please select a status");
+        isValid = false;
+    } else {
+        showFieldSuccess("status", "Status selected");
+    }
+
+    return isValid;
+}
+
+function getValue(id) {
+    return document.getElementById(id).value.trim();
+}
+
+function resetValidation() {
+    document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error', 'success'));
+    document.querySelectorAll('.validation-message').forEach(m => {
+        m.classList.remove('error', 'success');
+        m.textContent = '';
+    });
+}
+
+function showFieldError(fieldId, message) {
+    const group = document.getElementById(fieldId + "Group");
+    const msg = document.getElementById(fieldId + "Error");
+
+    group.classList.add("error");
+    msg.classList.add("error");
+    msg.textContent = message;
+}
+
+function showFieldSuccess(fieldId, message) {
+    const group = document.getElementById(fieldId + "Group");
+    const msg = document.getElementById(fieldId + "Error");
+
+    group.classList.add("success");
+    msg.classList.add("success");
+    msg.textContent = message;
+}
+
+
+// --------------------------------------
+// FORM SUBMIT → API CALL
+// --------------------------------------
+document.getElementById("productForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    // Validation
+    const productCode = document.getElementById("productCode").value.trim();
+    const productName = document.getElementById("productName").value.trim();
+    const model = document.getElementById("model").value.trim();
+    const pricePerQuantity = document.getElementById("pricePerQuantity").value.trim();
+    const quantity = document.getElementById("quantity").value.trim();
+    const status = document.getElementById("status").value.trim();
+
+    if (!productCode || !productName || !model || !pricePerQuantity || !quantity || !status) {
+        alert("Please fill all fields!");
+        return;
+    }
+
+    const productData = {
+        productCode: productCode,
+        productName: productName,
+        model: model,
+        pricePerQuantity: parseFloat(pricePerQuantity),
+        quantity: parseInt(quantity),
+        status: status
+    };
+
+    console.log("Sending:", productData);
+
+    try {
+        const response = await fetch("http://localhost:8080/api/products", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(productData)
+        });
+
+        if (!response.ok) {
+            throw new Error("Server error: " + response.status);
+        }
+
+        const saved = await response.json();
+        console.log("Saved:", saved);
+
+        alert("Product added successfully!");
+        document.getElementById("productForm").reset();
+
+    } catch (error) {
+        console.error(error);
+        alert("Error: " + error.message);
+    }
+});
+
+// --------------------------------------
+// RESET FORM
+// --------------------------------------
+function resetForm() {
+    document.getElementById("productForm").reset();
+    resetValidation();
+}
+
+</script>
+
+</body>
+</html>

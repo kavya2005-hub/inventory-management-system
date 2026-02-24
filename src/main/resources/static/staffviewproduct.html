@@ -765,17 +765,19 @@ let allProducts = [];  // store all products initially
 document.addEventListener("DOMContentLoaded", () => {
     fetchProducts();
 
-    // attach filter listeners
     document.getElementById("searchInput").addEventListener("input", applyFilters);
     document.getElementById("statusFilter").addEventListener("change", applyFilters);
     document.getElementById("lowStockToggle").addEventListener("change", applyFilters);
+
+    // Back button safely added
+    const backBtn = document.getElementById("backButton");
+    if (backBtn) {
+        backBtn.addEventListener("click", function () {
+            window.location.href = "staffdashboard.html";
+        });
+    }
 });
-// --------------------------------------
-// BACK BUTTON - FIXED
-// --------------------------------------
-document.getElementById('backButton').addEventListener('click', function() {
-    window.history.back(); 
-});
+
 
 
 // ---------------- FETCH PRODUCTS ----------------

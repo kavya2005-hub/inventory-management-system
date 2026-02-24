@@ -31,6 +31,22 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        html {
+            overflow: hidden;
         }
 
         /* Navigation */
@@ -67,6 +83,7 @@
             align-items: center;
             justify-content: center;
             padding: 120px 20px 50px;
+            overflow: hidden;
         }
 
         .login-card {
@@ -120,7 +137,7 @@
         .form-control {
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 12px 15px;
+            padding: 12px 45px 12px 15px;
             font-size: 0.95rem;
             transition: all 0.3s ease;
             width: 100%;
@@ -151,13 +168,20 @@
             display: block;
         }
 
+        .password-wrapper {
+            position: relative;
+        }
+
         .password-toggle {
             position: absolute;
             right: 15px;
-            top: 42px;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--gray);
             cursor: pointer;
             transition: color 0.3s ease;
+            user-select: none;
+            z-index: 10;
         }
 
         .password-toggle:hover {
@@ -365,8 +389,10 @@
                 <!-- Password -->
                 <div class="form-group">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
-                    <i class="fas fa-eye password-toggle" id="passwordToggle"></i>
+                    <div class="password-wrapper">
+                        <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+                        <i class="fas fa-eye password-toggle" id="passwordToggle"></i>
+                    </div>
                     <div class="invalid-feedback">Please enter your password</div>
                 </div>
                 
@@ -388,9 +414,27 @@
         </div>
     </main>
 
-  <script>
+    <script>
 document.addEventListener("DOMContentLoaded", function () {
 
+    // Password Toggle Functionality
+    const passwordInput = document.getElementById("password");
+    const passwordToggle = document.getElementById("passwordToggle");
+
+    passwordToggle.addEventListener("click", function () {
+        // Toggle password visibility
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            passwordToggle.classList.remove("fa-eye");
+            passwordToggle.classList.add("fa-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            passwordToggle.classList.remove("fa-eye-slash");
+            passwordToggle.classList.add("fa-eye");
+        }
+    });
+
+    // Login Form Submission
     const loginForm = document.getElementById("loginForm");
     const loginButton = document.getElementById("loginButton");
     const errorMessage = document.getElementById("errorMessage");
@@ -439,7 +483,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 console.log("LOGGED USER :::", staff);
 
-            
                 const userRight = staff.rights.toLowerCase();
 
                 if (userRight === "admin") {
@@ -464,9 +507,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-</script>
-
-
+    </script>
 
 </body>
 </html>

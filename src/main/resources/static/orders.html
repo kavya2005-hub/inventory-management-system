@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Table</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6fb;
+            padding: 40px 20px;
+        }
+
+        .table-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+
+        tbody tr:hover { background-color: #f8f9ff; }
+        tbody tr:nth-child(even) { background-color: #fafafa; }
+
+        .loading { text-align: center; padding: 50px; color: #667eea; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>Model</th>
+                    <th>Quantity</th>
+                    <th>Ordered By</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                <tr>
+                    <td colspan="6" class="loading">Loading orders...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadOrders);
+
+        function loadOrders() {
+            fetch("http://localhost:8080/api/orders")
+                .then(response => {
+                    if (!response.ok) throw new Error("Server error: " + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    const tableBody = document.getElementById("ordersTableBody");
+                    tableBody.innerHTML = "";
+
+                   data.forEach(order => {
+    const row = `
+        <tr>
+            <td>${order.id}</td>
+            <td>${order.productName}</td>
+            <td>${order.model}</td>
+            <td>${order.quantityOrdered}</td>
+            <td>${order.orderedBy}</td>
+            <td>${order.orderDate}</td>
+        </tr>
+    `;
+    tableBody.innerHTML += row;
+});
+
+                })
+                .catch(error => {
+                    console.error("Error loading orders:", error);
+                    document.getElementById("ordersTableBody").innerHTML =
+                        `<tr><td colspan="6" class="loading">Failed to load orders.</td></tr>`;
+                });
+        }
+    </script>
+</body>
+</html>

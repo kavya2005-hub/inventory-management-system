@@ -9,23 +9,26 @@ import java.util.List;
 
 public interface StaffRepository extends JpaRepository<Staff, Long> {
 
-    // Login purpose
+    // Login
     Staff findByEmail(String email);
 
-    // Check duplicate email during registration
+    // Duplicate check
     boolean existsByEmail(String email);
 
-    // Filter by role (admin / staff)
+    // Filter by rights (ADMIN / STAFF)
     List<Staff> findByRights(String rights);
 
-    // Filter by status (ACTIVE / INACTIVE)
+    // Recommended (case insensitive)
+    List<Staff> findByRightsIgnoreCase(String rights);
+
+    // Filter by status
     List<Staff> findByStatus(String status);
 
     // Count total staff
     @Query("SELECT COUNT(s) FROM Staff s")
     long getStaffCount();
+
     long countByRightsIgnoreCase(String rights);
 
-long countByCreatedAtAfter(LocalDate date);
-
+    long countByCreatedAtAfter(LocalDate date);
 }

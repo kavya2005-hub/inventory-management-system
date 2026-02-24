@@ -25,7 +25,6 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class ProductController {
 
-
     @Autowired
     private ProductService productService;
 
@@ -34,9 +33,9 @@ public class ProductController {
 
     @Autowired
     private ExcelExportService excelExportService;
-    @Autowired
-private NotificationService notificationService;
 
+    @Autowired
+    private NotificationService notificationService;
 
     // Delete Product
     @DeleteMapping("/{id}")
@@ -44,14 +43,11 @@ private NotificationService notificationService;
         productService.deleteProduct(id);
         return "Product deleted successfully!";
     }
+
     // Save product (for add + update)
-public Product saveProduct(Product product) {
-    return productRepository.save(product);
-}
-
-
-
-    
+    public Product saveProduct(Product product) {
+        return productRepository.save(product);
+    }
 
     // 🔹 Get all products
     @GetMapping
@@ -74,29 +70,26 @@ public Product saveProduct(Product product) {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
     }
 
-   @PutMapping("/{id}")
-public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product newData) {
+    // 🔹 Update product
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product newData) {
+        return productService.getProductById(id).map(existing -> {
 
-    return productService.getProductById(id).map(existing -> {
+            existing.setProductCode(newData.getProductCode());
+            existing.setProductName(newData.getProductName());
+            existing.setModel(newData.getModel());
+            existing.setPricePerQuantity(newData.getPricePerQuantity());
+            existing.setQuantity(newData.getQuantity());
+            existing.setTotalPrice(newData.getPricePerQuantity() * newData.getQuantity());
+            existing.setStatus(newData.getStatus());
+            existing.setUpdatedDate(java.time.LocalDateTime.now());
 
-        existing.setProductCode(newData.getProductCode());
-        existing.setProductName(newData.getProductName());
-        existing.setModel(newData.getModel());
-        existing.setPricePerQuantity(newData.getPricePerQuantity());
-        existing.setQuantity(newData.getQuantity());
-        existing.setTotalPrice(newData.getPricePerQuantity() * newData.getQuantity());
-        existing.setStatus(newData.getStatus());
-        existing.setUpdatedDate(java.time.LocalDateTime.now());
+            Product updated = productService.saveProduct(existing);
 
-        Product updated = productService.saveProduct(existing);
+            return ResponseEntity.ok(updated);
 
-        return ResponseEntity.ok(updated);
-
-    }).orElse(ResponseEntity.notFound().build());
-}
-
-
-
+        }).orElse(ResponseEntity.notFound().build());
+    }
 
     // 🟣 Total products
     @GetMapping("/count")
@@ -116,8 +109,6 @@ public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody
         return productRepository.countByQuantity(0);
     }
 
-    
-
     // 🔹 Excel Export
     @GetMapping("/export/excel")
     public ResponseEntity<Resource> exportToExcel() throws IOException {
@@ -130,94 +121,75 @@ public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(resource);
     }
-// 🟢 Place Order
-@PutMapping("/order")
-public ResponseEntity<String> placeOrder(@RequestBody Map<String, Object> request) {
-    try {
-        String productName = request.get("productName").toString();
-        String model = request.get("model").toString();
-        Object unitObj = request.get("Unit");
 
-        if (unitObj == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("❌ Missing field: Unit");
-        }
-
-        int orderQuantity = Integer.parseInt(unitObj.toString());
-        Product product = productRepository.findByProductNameAndModel(productName, model);
-
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("❌ Product not found: " + productName + " (" + model + ")");
-        }
-
-        int currentStock = product.getQuantity();
-
-        // Out of stock
-        if (currentStock <= 0) {
-            product.setStatus("OUT_OF_STOCK");
-            productService.saveProduct(product);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("⚠️ No available stock for " + productName + " (" + model + ")");
-        }
-
-        // Low stock
-        if (currentStock < orderQuantity) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("⚠️ Insufficient stock! Only " + currentStock + " units available for " + productName + " (" + model + ")");
-        }
-
-        // Update stock
-        int updatedStock = currentStock - orderQuantity;
-        product.setQuantity(updatedStock);
-        product.setTotalPrice(product.getPricePerQuantity() * updatedStock);
-
-        if (updatedStock == 0) {
-            product.setStatus("OUT_OF_STOCK");
-        }
-
-        Product updatedProduct = productService.saveProduct(product);
-
-       if (updatedStock < 4) {
-    try {
-        notificationService.sendStockAlert(updatedProduct);
-    } catch (Exception e) {
-        e.printStackTrace();
-        System.err.println("❌ Email failed, but order is placed!");
-    }
-}
-
-        String message = updatedStock == 0
-                ? "✅ Order placed successfully! Product now OUT OF STOCK!"
-                : "✅ Order placed! Remaining stock: " + updatedStock;
-
-        return ResponseEntity.ok(message);
-
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("❌ Error while placing order: " + e.getMessage());
-    }
-}
-@RestController
-@RequestMapping("/api/test")
-public class TestController {
-
-    @Autowired
-    private NotificationService notificationService;
-
-    @GetMapping("/mail")
-    public String sendMail() {
+    // 🟢 Place Order
+    @PutMapping("/order")
+    public ResponseEntity<String> placeOrder(@RequestBody Map<String, Object> request) {
         try {
-            notificationService.sendTestMail();
-            return "Mail send attempt done!";
+            String productName = request.get("productName").toString();
+            String model = request.get("model").toString();
+            Object unitObj = request.get("Unit");
+
+            if (unitObj == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("❌ Missing field: Unit");
+            }
+
+            int orderQuantity = Integer.parseInt(unitObj.toString());
+            Product product = productRepository.findByProductNameAndModel(productName, model);
+
+            if (product == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("❌ Product not found: " + productName + " (" + model + ")");
+            }
+
+            int currentStock = product.getQuantity();
+
+            // Out of stock
+            if (currentStock <= 0) {
+                product.setStatus("OUT_OF_STOCK");
+                productService.saveProduct(product);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("⚠️ No available stock for " + productName + " (" + model + ")");
+            }
+
+            // Low stock
+            if (currentStock < orderQuantity) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("⚠️ Insufficient stock! Only " + currentStock + " units available for " + productName + " (" + model + ")");
+            }
+
+            // Update stock
+            int updatedStock = currentStock - orderQuantity;
+            product.setQuantity(updatedStock);
+            product.setTotalPrice(product.getPricePerQuantity() * updatedStock);
+
+            if (updatedStock == 0) {
+                product.setStatus("OUT_OF_STOCK");
+            }
+
+            Product updatedProduct = productService.saveProduct(product);
+
+            // Send stock alert if low
+            if (updatedStock < 4) {
+                try {
+                    notificationService.sendStockAlert(updatedProduct);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.err.println("❌ Email failed, but order is placed!");
+                }
+            }
+
+            String message = updatedStock == 0
+                    ? "✅ Order placed successfully! Product now OUT OF STOCK!"
+                    : "✅ Order placed! Remaining stock: " + updatedStock;
+
+            return ResponseEntity.ok(message);
+
         } catch (Exception e) {
-            e.printStackTrace();
-            return "❌ Error sending test mail: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ Error while placing order: " + e.getMessage());
         }
     }
-}
 
-
-
-    
 }

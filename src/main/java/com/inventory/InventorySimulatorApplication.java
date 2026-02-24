@@ -2,13 +2,13 @@ package com.inventory;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-@EnableScheduling
-public class InventorySimulatorApplication {
+@EnableAsync
+public class InventorysimulatorApplication {
+
     public static void main(String[] args) {
-        SpringApplication.run(InventorySimulatorApplication.class, args);
+        SpringApplication.run(InventorysimulatorApplication.class, args);
     }
 }
-

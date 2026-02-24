@@ -790,13 +790,29 @@ document.addEventListener("DOMContentLoaded", () => {
 // ---------------- FETCH PRODUCTS ----------------
 function fetchProducts() {
     fetch("http://localhost:8080/api/products")
-        .then(res => res.json())
-        .then(data => {
-            allProducts = data;
-            loadTable(allProducts);
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("HTTP error " + res.status);
+            }
+            return res.json();
         })
-        .catch(err => console.log(err));
+        .then(data => {
+            console.log("API Response:", data);
+
+            if (Array.isArray(data)) {
+                allProducts = data;
+                loadTable(allProducts);
+            } else {
+                console.error("Expected array but got:", data);
+                alert("Backend did not return product list properly.");
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+            alert("Failed to load products. Check backend.");
+        });
 }
+
 
 
 // ---------------- LOAD TABLE ----------------
@@ -877,11 +893,12 @@ function deleteProduct(id) {
             });
     }
 }
+// Replace the back button script section with this:
 // --------------------------------------
-// BACK BUTTON - FIXED
+// BACK BUTTON - Navigate to viewproduct.html
 // --------------------------------------
 document.getElementById('backButton').addEventListener('click', function() {
-    window.history.back(); 
+    window.location.href = "admindashboard.html"; 
 });
 
 

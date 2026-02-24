@@ -28,6 +28,22 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        html {
+            overflow: hidden;
         }
 
         /* Navigation */
@@ -64,6 +80,8 @@
             align-items: center;
             justify-content: center;
             padding: 120px 20px 50px;
+            position: relative;
+            overflow: hidden;
         }
 
         .content-wrapper {
@@ -249,7 +267,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Add scroll effect to navbar
+        // Add scroll effect to navbar (kept for compatibility but won't trigger with overflow hidden)
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar');
             if (window.scrollY > 50) {
@@ -295,8 +313,8 @@
                     opacity: 0;
                 }
             }
-        `
+        `;
         document.head.appendChild(style);
     </script>
 </body>
-</html> 
+</html>

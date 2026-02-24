@@ -423,7 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const productSelect = document.getElementById("productName");
     const modelSelect = document.getElementById("model");
-    const quantityInput = document.getElementById("unit");  // same ID as your input box
+    const quantityInput = document.getElementById("unit");
     const orderBtn = document.querySelector(".btn-primary");
 
     let allProducts = [];
@@ -438,12 +438,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             productSelect.innerHTML = `<option value="">Select Product</option>`;
 
-            [...new Set(allProducts.map(p => p.productName))].forEach(name => {
+            // Get unique product names
+            const uniqueProducts = [...new Set(allProducts.map(p => p.productName))];
+
+            uniqueProducts.forEach(name => {
                 productSelect.innerHTML += `<option value="${name}">${name}</option>`;
             });
 
         } catch (error) {
             alert("❌ Failed to load products!");
+            console.error(error);
         }
     }
 
@@ -465,55 +469,70 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // -------------------------
-    // 3️⃣ Place Order
+    // 3️⃣ Place Order (FIXED)
     // -------------------------
     orderBtn.addEventListener("click", async function (e) {
         e.preventDefault();
 
         const productName = productSelect.value;
         const model = modelSelect.value;
-        const unit = quantityInput.value;
+        const quantity = quantityInput.value;
+        const orderedBy = "staff"; // Replace with logged-in staff name if needed
 
-        if (!productName || !model || !unit) {
+        if (!productName || !model || !quantity) {
             alert("⚠️ All fields are required!");
             return;
         }
 
-        const orderData = {
-            productName: productName,
-            model: model,
-            Unit: unit   // backend expects EXACT NAME → "Unit"
-        };
+        if (quantity <= 0) {
+            alert("⚠️ Quantity must be greater than 0!");
+            return;
+        }
+
+        // Find selected product to get its ID
+        const selectedProduct = allProducts.find(
+            p => p.productName === productName && p.model === model
+        );
+
+        if (!selectedProduct) {
+            alert("❌ Product not found!");
+            return;
+        }
 
         try {
-            const res = await fetch("http://localhost:8080/api/products/order", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(orderData)
-            });
+            const res = await fetch(
+                `http://localhost:8080/api/orders/place?productId=${selectedProduct.id}&quantity=${quantity}&orderedBy=${orderedBy}`,
+                {
+                    method: "POST"
+                }
+            );
 
-            const message = await res.text();
-
-            if (res.ok) {
-                alert("✅ " + message);
-                quantityInput.value = "";
-            } 
-            else {
-                alert("❌ " + message);
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText);
             }
 
+            alert("✅ Order placed successfully!");
+
+            // Reset form
+            quantityInput.value = "";
+            modelSelect.innerHTML = `<option value="">Select Model</option>`;
+            productSelect.value = "";
+
         } catch (error) {
-            alert("❌ Error placing order!");
+            alert("❌ " + error.message);
+            console.error(error);
         }
     });
+
 });
-// --------------------------------------
-// BACK BUTTON - FIXED
-// --------------------------------------
+
+// -------------------------
+// BACK BUTTON
+// -------------------------
 document.getElementById('backButton').addEventListener('click', function() {
-    window.history.back(); 
+    window.history.back();
 });
 </script>
-
 </body>
 </html>

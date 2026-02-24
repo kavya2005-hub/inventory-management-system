@@ -23,4 +23,5 @@ public interface ProductService {
 
     long getOutOfStockCount();
     
+    
 }

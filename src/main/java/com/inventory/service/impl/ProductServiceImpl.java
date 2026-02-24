@@ -25,17 +25,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product saveProduct(Product product) {
 
-        // Save first into DB
+        // Save product to DB
         Product saved = productRepository.save(product);
 
-        // If stock is low → send alert ONCE
-        if (saved.getQuantity() != null && saved.getQuantity() < minimumStock) {
-            notificationService.sendStockAlert(saved);
-        }
+        // If stock < threshold AND mail not sent, send email async
+        if (saved.getQuantity() != null && saved.getQuantity() < minimumStock 
+                && !Boolean.TRUE.equals(saved.getMailSent())) {
 
-        // If stock is normal (>=4) → reset mail flag
-        if (saved.getQuantity() != null && saved.getQuantity() >= minimumStock) {
-            notificationService.clearMailedFlag(saved.getId());
+            notificationService.sendStockAlert(saved); // async call
+
+            // mark mail as sent
+            saved.setMailSent(true);
+            productRepository.save(saved);
         }
 
         return saved;
@@ -56,7 +57,6 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findById(id).map(existing -> {
 
-            // Update product fields
             existing.setProductCode(newProduct.getProductCode());
             existing.setProductName(newProduct.getProductName());
             existing.setModel(newProduct.getModel());
@@ -68,14 +68,13 @@ public class ProductServiceImpl implements ProductService {
 
             Product updated = productRepository.save(existing);
 
-            // If quantity becomes normal → reset mail flag
-            if (updated.getQuantity() != null && updated.getQuantity() >= minimumStock) {
-                notificationService.clearMailedFlag(updated.getId());
-            }
+            // If low stock AND mail not sent → async email
+            if (updated.getQuantity() != null && updated.getQuantity() < minimumStock 
+                    && !Boolean.TRUE.equals(updated.getMailSent())) {
 
-            // If quantity < 4 → send low stock mail ONCE
-            if (updated.getQuantity() != null && updated.getQuantity() < minimumStock) {
-                notificationService.sendStockAlert(updated);
+                notificationService.sendStockAlert(updated); // async
+                updated.setMailSent(true);
+                productRepository.save(updated);
             }
 
             return updated;
@@ -95,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public long getLowStockCount() {
-        return productRepository.countByQuantityLessThan(10);
+        return productRepository.countByQuantityLessThan(minimumStock);
     }
 
     @Override

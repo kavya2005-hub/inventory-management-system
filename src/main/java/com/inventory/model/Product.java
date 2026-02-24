@@ -14,26 +14,25 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Primary key
+    private Long id;
 
-   @Column(nullable = true)
-private String productCode;
-  // 🔹 Added new field to identify product uniquely (ex: motorola)
-
-    @Column(nullable = false)
-    private String productName;  // Product name
+    @Column(nullable = true)
+    private String productCode;
 
     @Column(nullable = false)
-    private String model;  // Model name
+    private String productName;
 
     @Column(nullable = false)
-    private Double pricePerQuantity;  // Price per unit
+    private String model;
 
     @Column(nullable = false)
-    private Integer quantity;  // Quantity in stock
+    private Double pricePerQuantity;
 
     @Column(nullable = false)
-    private Double totalPrice;  // pricePerQuantity * quantity
+    private Integer quantity;
+
+    @Column(nullable = false)
+    private Double totalPrice;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
@@ -41,23 +40,34 @@ private String productCode;
     private LocalDateTime updatedDate;
 
     @Column(nullable = false)
-    private String status;  // ACTIVE / INACTIVE
+    private String status;
+
+    // ✅ ADD THIS FIELD (VERY IMPORTANT)
+    @Column(name = "mail_sent")
+    private Boolean mailSent = false;
 
     @PrePersist
     public void onCreate() {
         createdDate = LocalDateTime.now();
         updatedDate = LocalDateTime.now();
+
         if (status == null) {
             status = "ACTIVE";
         }
+
         if (totalPrice == null && pricePerQuantity != null && quantity != null) {
             totalPrice = pricePerQuantity * quantity;
+        }
+
+        if (mailSent == null) {
+            mailSent = false;
         }
     }
 
     @PreUpdate
     public void onUpdate() {
         updatedDate = LocalDateTime.now();
+
         if (pricePerQuantity != null && quantity != null) {
             totalPrice = pricePerQuantity * quantity;
         }

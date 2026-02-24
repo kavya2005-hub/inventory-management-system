@@ -499,11 +499,12 @@ async function updateProduct(event) {
 }
 
 document.getElementById("editProductForm").addEventListener("submit", updateProduct);
+/// Replace the back button script section with this:
 // --------------------------------------
-// BACK BUTTON - FIXED
+// BACK BUTTON - Navigate to viewproduct.html
 // --------------------------------------
 document.getElementById('backButton').addEventListener('click', function() {
-    window.history.back(); 
+    window.location.href = "viewproduct.html"; 
 });
 </script>
 

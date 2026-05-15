@@ -39,9 +39,9 @@ public class ProductController {
 
     // Delete Product
     @DeleteMapping("/{id}")
-    public String deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return "Product deleted successfully!";
+        return ResponseEntity.noContent().build();
     }
 
     // Save product (for add + update)
